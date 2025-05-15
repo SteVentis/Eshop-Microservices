@@ -7,6 +7,16 @@ namespace CatalogApi.Products.DeleteProduct
 
 	public record DeleteProductResult(bool IsSuccess);
 
+	public class DeleteProductCommandValidator : AbstractValidator<DeleteProductCommand>
+	{
+		public DeleteProductCommandValidator()
+		{
+			RuleFor(x => x.Id)
+				.NotEmpty()
+				.WithMessage("Product Id is required.");
+		}
+	}
+
 	internal class DeleteProductHandler(IDocumentSession session, ILogger<GetProductsQuery> logger) : ICommandHandler<DeleteProductCommand, DeleteProductResult>
 	{
 		public async Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
