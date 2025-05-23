@@ -1,33 +1,31 @@
 ﻿
 using CatalogApi.Products.GetProducts;
 
-namespace CatalogApi.Products.DeleteProduct
+namespace CatalogApi.Products.DeleteProduct;
+
+public record DeleteProductCommand(Guid Id) : ICommand<DeleteProductResult>;
+
+public record DeleteProductResult(bool IsSuccess);
+
+public class DeleteProductCommandValidator : AbstractValidator<DeleteProductCommand>
 {
-	public record DeleteProductCommand(Guid Id) : ICommand<DeleteProductResult>;
-
-	public record DeleteProductResult(bool IsSuccess);
-
-	public class DeleteProductCommandValidator : AbstractValidator<DeleteProductCommand>
+	public DeleteProductCommandValidator()
 	{
-		public DeleteProductCommandValidator()
-		{
-			RuleFor(x => x.Id)
-				.NotEmpty()
-				.WithMessage("Product Id is required.");
-		}
+		RuleFor(x => x.Id)
+			.NotEmpty()
+			.WithMessage("Product Id is required.");
 	}
+}
 
-	internal class DeleteProductHandler(IDocumentSession session, ILogger<GetProductsQuery> logger) : ICommandHandler<DeleteProductCommand, DeleteProductResult>
+internal class DeleteProductHandler(IDocumentSession session) : ICommandHandler<DeleteProductCommand, DeleteProductResult>
+{
+	public async Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
 	{
-		public async Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
-		{
-			logger.LogInformation("DeleteProductHandler.Handle called with {@Command}", command);
 
-			session.Delete<Product>(command.Id);
+		session.Delete<Product>(command.Id);
 
-			await session.SaveChangesAsync(cancellationToken);
+		await session.SaveChangesAsync(cancellationToken);
 
-			return new DeleteProductResult(true);
-		}
+		return new DeleteProductResult(true);
 	}
 }
